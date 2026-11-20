@@ -58,10 +58,13 @@ try {
     assert.equal(await p.evaluate(() => document.body.style.overflow), 'hidden', 'page locked during intro')
     await p.waitForSelector('#intro', { state: 'detached', timeout: 6000 })
     assert.equal(await p.evaluate(() => document.body.style.overflow), '')
+    assert.ok(await p.$('#logo3d.on'), '3D logo starts after the intro')
+    const tf = await p.evaluate(async () => { await new Promise(r => setTimeout(r, 1500)); return getComputedStyle(document.querySelector('.logo3d__tilt')).transform })
+    assert.notEqual(tf, 'none', '3D logo is tilting')
     await p.close()
   }
-  const sk = await browser.newPage(); await sk.goto(BASE + '/'); await sk.click('.intro__skip'); await sk.waitForSelector('#intro', { state: 'detached', timeout: 2000 }); await sk.close()
-  step('both intros play and remove themselves; Skip works')
+  const sk = await browser.newPage(); await sk.goto(BASE + '/'); assert.equal(await sk.$('.intro__skip'), null, 'no skip button'); await sk.click('#intro'); await sk.waitForSelector('#intro', { state: 'detached', timeout: 2000 }); await sk.close()
+  step('both intros play and remove themselves; no skip button; 3D logo starts')
 
   // ── page + language ──
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
@@ -77,6 +80,10 @@ try {
   await page.reload(); assert.match(await page.textContent('#apie'), /Handmade and organic/, 'language remembered')
   await page.click('[data-lang=lt]')
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'no sideways scroll on a phone')
+  assert.equal(await page.$('#soundBtn'), null, 'no sound button')
+  assert.equal(await page.$('input[name=bottles]'), null, 'no bottle quantity')
+  assert.equal(await page.$$eval('.hero__cta .btn', b => b.map(x => x.textContent).join('|')), 'Susisiek su mumis')
+  assert.equal(await page.evaluate(() => document.querySelector('#adVideo').muted), true)
   const v = await fetch(BASE + '/media/bullbucha-ad.mp4', { headers: { range: 'bytes=0-99' } })
   assert.equal(v.status, 206); assert.equal((await v.arrayBuffer()).byteLength, 100)
   step('Lithuanian page, EN switch (remembered), price shown, phone layout, video streams')
@@ -86,29 +93,27 @@ try {
   await page.click('#contactForm button[type=submit]')
   assert.match(await page.textContent('#formStatus'), /vardą/)
   await page.fill('input[name=name]', 'Rūta Bulienė'); await page.fill('input[name=email]', 'ruta@example.com'); await page.fill('input[name=phone]', '+370 600 00000')
-  await page.click('[data-step="1"]'); await page.click('[data-step="1"]')
-  assert.match(await page.textContent('#qtyTotal'), /4 × 7\.77 EUR = 31,08 EUR/)
-  await page.fill('textarea[name=message]', 'Atsiimčiau šeštadienį.\nAčiū!')
+  await page.click('#contactForm button[type=submit]')
+  assert.match(await page.textContent('#formStatus'), /ką norėtum užsisakyti/)
+  await page.fill('textarea[name=message]', '4 butelius, atsiimčiau šeštadienį.\nAčiū!')
   await page.waitForTimeout(1600) // the form ignores sends within 2 s of loading (bots)
   await page.click('#contactForm button[type=submit]')
   await page.waitForSelector('#contactForm.sent')
   assert.match(await page.textContent('#formStatus'), /Ačiū/)
   let all = await saved()
   assert.equal(all.length, 1)
-  assert.deepEqual([all[0].type, all[0].name, all[0].bottles, all[0].email_status], ['order', 'Rūta Bulienė', 4, 'sent'])
+  assert.deepEqual([all[0].type, all[0].name, all[0].message.slice(0, 10), all[0].email_status], ['order', 'Rūta Bulienė', '4 butelius', 'sent'])
   assert.equal(mails.length, 1)
   const mail = mails[0]
   assert.match(mail, /To: orders@example\.com/)
   assert.match(mail, /Reply-To: .*ruta@example\.com/)
   assert.match(mail, /Subject: =\?UTF-8\?/) // Lithuanian letters are encoded
-  assert.ok(mail.includes('31.08'))
-  step('order: validation, quantity + total, saved, emailed to CONTACT_TO with Reply-To = customer')
+  step('order: validation (message required, no quantity), saved, emailed to CONTACT_TO with Reply-To = customer')
 
   // ── question in English ──
   const q = await browser.newPage({ viewport: { width: 1280, height: 800 } })
   await q.goto(BASE + '/?intro=off'); await q.click('[data-lang=en]')
   await q.click('#contactForm .seg label:nth-child(2)')
-  assert.equal(await q.isHidden('#qtyField'), true)
   await q.fill('input[name=name]', 'Sam'); await q.fill('input[name=email]', 'sam@example.com')
   await q.waitForTimeout(1600)
   await q.click('#contactForm button[type=submit]')
@@ -116,18 +121,18 @@ try {
   await q.fill('textarea[name=message]', 'Do you deliver to Kaunas?')
   await q.click('#contactForm button[type=submit]'); await q.waitForSelector('#contactForm.sent')
   assert.match(await q.textContent('#formStatus'), /Thanks/)
-  all = await saved(); assert.equal(all[1].type, 'question'); assert.equal(all[1].bottles, null); assert.equal(all[1].lang, 'en')
-  step('question in English: no bottle field, message required, saved + emailed')
+  all = await saved(); assert.equal(all[1].type, 'question'); assert.equal(all[1].lang, 'en')
+  step('question in English: message required, saved + emailed')
 
   // ── spam traps + rate limit ──
   let ipN = 10
   const post = (body, ip = `10.0.0.${ipN++}`) => fetch(BASE + '/api/contact', { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': ip }, body: JSON.stringify(body) })
-  const good = { type: 'order', name: 'Bot', email: 'b@example.com', bottles: 1, ms: 5000 }
+  const good = { type: 'order', name: 'Bot', email: 'b@example.com', message: '2 bottles', ms: 5000 }
   assert.equal((await post({ ...good, website: 'http://spam' })).status, 200)
   assert.equal((await post({ ...good, ms: 300 })).status, 200)
   assert.equal((await saved()).length, 2, 'spam not saved')
   assert.equal((await post({ ...good, email: 'nope' })).status, 400)
-  assert.equal((await post({ ...good, bottles: 0 })).status, 400)
+  assert.equal((await post({ ...good, message: '' })).status, 400)
   let last
   for (let i = 0; i < 6; i++) last = await post({ ...good, name: 'Limit ' + i }, '10.9.9.9')
   assert.equal(last.status, 429)

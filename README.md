@@ -1,6 +1,6 @@
 # Bullbūcha website
 
-One-page site for Bullbūcha (Triple Rose kombucha): logo intro animation, brand and product, the ad video, how to enjoy, and an order/question form that emails you. Lithuanian by default with an EN switch.
+One-page site for Bullbūcha (Triple Rose kombucha): logo intro animation, brand and product, the ad video, how to enjoy, and an order/question form (name, email, phone, message; no quantity picker) that emails you. Lithuanian by default with an EN switch.
 
 - `public/`: the page (`index.html`, `css/site.css`, `js/site.js`, images, video, fonts)
 - `server.js`: serves the page, handles the form (`POST /api/contact`) and the message list (`/admin`)
@@ -22,7 +22,9 @@ Two styles are built in:
 - `https://bullbucha.com/?intro=horns`: horns first, then the bull, letters stamp in
 - `?intro=off`: no intro
 
-To change the default, edit `|| 'gold'` in `public/js/site.js` (the `intro` section). Visitors can skip it with the button, a click, Esc or Enter. With "reduce motion" switched on it's shortened.
+To change the default, edit `|| 'gold'` in `public/js/site.js` (the `intro` section). There's no skip button; a click, Esc or Enter still ends it early. With "reduce motion" switched on it's shortened.
+
+After the intro, the hero logo is shown in 3D (layered rings, glow, sheen and gold sparks): it swings in, follows the mouse on computers and sways gently on phones.
 
 ## Deploy on Coolify
 

@@ -14,7 +14,6 @@ const MESSAGES = join(DATA_DIR, 'messages.jsonl')
 const env = k => (process.env[k] || '').trim()
 const CONTACT_TO = env('CONTACT_TO')
 const ADMIN_PASSWORD = env('ADMIN_PASSWORD')
-const PRICE = 7.77
 
 // ── email ──
 const smtpPort = Number(env('SMTP_PORT') || 587)
@@ -34,12 +33,11 @@ async function sendEmail(m) {
   if (!mailer) return 'off'
   const order = m.type === 'order'
   const subject = order
-    ? `Bullbūcha užsakymas: ${oneLine(m.name)}, ${m.bottles} but. (${(m.bottles * PRICE).toFixed(2)} EUR)`
+    ? `Bullbūcha užsakymas: ${oneLine(m.name)}`
     : `Bullbūcha klausimas: ${oneLine(m.name)}`
   const rows = [
     ['Tipas', order ? 'Užsakymas' : 'Klausimas'],
     ['Vardas', m.name], ['El. paštas', m.email], ['Telefonas', m.phone || '–'],
-    ...(order ? [['Buteliai', `${m.bottles} × ${PRICE} EUR = ${(m.bottles * PRICE).toFixed(2)} EUR`]] : []),
     ['Žinutė', m.message || '–'], ['Kalba', m.lang.toUpperCase()], ['Gauta', new Date(m.at).toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' })],
   ]
   await mailer.sendMail({
@@ -107,7 +105,7 @@ function adminAllowed(req) {
 async function adminPage(res) {
   let list = []
   try { list = (await readFile(MESSAGES, 'utf8')).trim().split('\n').filter(Boolean).map(l => JSON.parse(l)).reverse() } catch {}
-  const rows = list.map(m => `<tr><td>${esc(new Date(m.at).toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' }))}</td><td>${m.type === 'order' ? `<b>Užsakymas</b><br>${m.bottles} but.` : 'Klausimas'}</td><td>${esc(m.name)}<br><a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.phone ? `<br>${esc(m.phone)}` : ''}</td><td style="white-space:pre-wrap">${esc(m.message)}</td><td>${esc(m.email_status)}</td></tr>`).join('')
+  const rows = list.map(m => `<tr><td>${esc(new Date(m.at).toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' }))}</td><td>${m.type === 'order' ? `<b>Užsakymas</b>${m.bottles ? `<br>${esc(m.bottles)} but.` : ''}` : 'Klausimas'}</td><td>${esc(m.name)}<br><a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.phone ? `<br>${esc(m.phone)}` : ''}</td><td style="white-space:pre-wrap">${esc(m.message)}</td><td>${esc(m.email_status)}</td></tr>`).join('')
   res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex', ...SECURITY })
   res.end(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Bullbūcha žinutės</title>
 <style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:20px;background:#10101b;color:#f3ead8}h1{color:#e2b663}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #333;text-align:left;vertical-align:top}th{color:#c9bfae;font-size:12px;text-transform:uppercase}a{color:#e2b663}.wrap{overflow-x:auto}</style>
@@ -133,15 +131,14 @@ const server = createServer(async (req, res) => {
         name: String(b.name || '').trim().slice(0, 80),
         email: String(b.email || '').trim().slice(0, 160),
         phone: String(b.phone || '').trim().slice(0, 40),
-        bottles: null,
         message: String(b.message || '').trim().slice(0, 3000),
         lang: b.lang === 'en' ? 'en' : 'lt',
       }
-      if (m.type === 'order') m.bottles = Math.round(Number(b.bottles))
       if (!m.name) return json(res, 400, { error: 'Please add your name.', errorLt: 'Įrašyk savo vardą.' })
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m.email)) return json(res, 400, { error: 'Please enter a valid email address.', errorLt: 'Įrašyk teisingą el. pašto adresą.' })
-      if (m.type === 'order' && !(m.bottles >= 1 && m.bottles <= 200)) return json(res, 400, { error: 'How many bottles? (1–200)', errorLt: 'Kiek butelių? (1–200)' })
-      if (m.type === 'question' && !m.message) return json(res, 400, { error: 'Please write your question.', errorLt: 'Parašyk savo klausimą.' })
+      if (!m.message) return json(res, 400, m.type === 'order'
+        ? { error: 'Please write what you would like to order.', errorLt: 'Parašyk, ką norėtum užsisakyti.' }
+        : { error: 'Please write your question.', errorLt: 'Parašyk savo klausimą.' })
       try { m.email_status = await sendEmail(m) } catch (e) { console.error('Email failed:', e.message); m.email_status = 'failed' }
       await mkdir(DATA_DIR, { recursive: true })
       await appendFile(MESSAGES, JSON.stringify(m) + '\n')

@@ -28,7 +28,6 @@
       <div class="intro__bull"><img src="/img/bull-900.webp" alt="" width="900" height="798"><span class="intro__sheen"></span></div>
       <div class="intro__word" aria-hidden="true"></div>
     </div>
-    <button class="intro__skip" type="button" data-i18n="intro.skip">Praleisti</button>
   </div>
 
   <header class="top" id="top">
@@ -52,24 +51,37 @@
   <main>
     <!-- ───────── hero ───────── -->
     <section class="hero" id="hero">
-      <img class="hero__border hero__border--top" src="/img/border-top.webp" alt="" width="1044" height="104">
       <div class="hero__inner">
-        <img class="hero__bull" src="/img/bull-900.webp" alt="Bullbūcha bulius" width="900" height="798">
+        <!-- 3D logo: layers at different depths, tilted by site.js after the intro -->
+        <div class="logo3d" id="logo3d">
+          <div class="logo3d__tilt">
+            <span class="logo3d__glow" aria-hidden="true"></span>
+            <svg class="logo3d__ring logo3d__ring--back" viewBox="0 0 900 798" aria-hidden="true"><circle cx="450" cy="430" r="440" fill="none" stroke="url(#heroGold)" stroke-width="2.5" stroke-dasharray="3 14" stroke-linecap="round"/></svg>
+            <svg class="logo3d__ring logo3d__ring--mid" viewBox="0 0 900 798" aria-hidden="true"><defs><linearGradient id="heroGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7dc95"/><stop offset=".5" stop-color="#c8963e"/><stop offset="1" stop-color="#8a5a24"/></linearGradient></defs><circle cx="450" cy="430" r="424" fill="none" stroke="url(#heroGold)" stroke-width="3" opacity=".55"/></svg>
+            <img class="hero__bull" src="/img/bull-900.webp" alt="Bullbūcha bulius" width="900" height="798">
+            <span class="logo3d__shine" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:6%;--y:30%;--z:110px;--d:0s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:92%;--y:22%;--z:140px;--d:.7s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:14%;--y:78%;--z:80px;--d:1.4s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:86%;--y:72%;--z:120px;--d:2.1s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:50%;--y:2%;--z:90px;--d:1s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:30%;--y:8%;--z:160px;--d:2.6s" aria-hidden="true"></span>
+            <span class="logo3d__spark" style="--x:72%;--y:94%;--z:100px;--d:.3s" aria-hidden="true"></span>
+          </div>
+        </div>
         <h1 class="hero__word gold-text">BULLBŬCHA</h1>
         <p class="hero__kicker" data-i18n="hero.kicker">Premium rankų darbo ekologiška kombucha</p>
         <p class="hero__tag" data-i18n="hero.tag">Kraftinė natūrali rožių kombučia. Tokios dar neragavai.</p>
         <div class="hero__cta">
-          <a class="btn" href="#kontaktai" data-i18n="hero.order">Užsisakyk žinute</a>
-          <a class="btn btn--ghost" href="#produktas" data-i18n="hero.more">Sužinoti daugiau</a>
+          <a class="btn" href="#kontaktai" data-i18n="hero.contact">Susisiek su mumis</a>
         </div>
+        <a class="hero__scroll" href="#apie" aria-label="Slinkti žemyn"><span class="hero__scroll-line"></span><span class="hero__scroll-arrow"></span></a>
       </div>
-      <a class="hero__scroll" href="#apie" aria-label="Scroll"><span></span></a>
     </section>
 
     <!-- ───────── about ───────── -->
     <section class="section" id="apie">
       <div class="frame">
-        <img class="frame__roses" src="/img/divider.webp" alt="" width="832" height="83">
         <h2><span data-i18n="about.title1">Natūrali naminė</span> <span class="gold-text strong">BULLBŬCHA</span></h2>
         <p class="lead" data-i18n="about.lead">Gyva, putojanti, rankų darbo kombucha su rožių arbata, imbieru ir citrina. Be jokių nesąmonių.</p>
         <ul class="benefits">
@@ -80,7 +92,6 @@
           <li data-i18n="about.b5">Tinka net ir veganam</li>
           <li data-i18n="about.b6">Žiauriai skani, kupina laimės ir džiaugsmo</li>
         </ul>
-        <img class="frame__roses frame__roses--bottom" src="/img/divider.webp" alt="" width="832" height="83">
       </div>
     </section>
 
@@ -88,8 +99,7 @@
     <section class="section section--alt" id="produktas">
       <div class="product">
         <div class="product__media">
-          <video id="adVideo" src="/media/bullbucha-ad.mp4" poster="/media/bullbucha-ad-poster.jpg" muted loop playsinline preload="metadata" width="720" height="720" aria-label="Bullbūcha reklama"></video>
-          <button class="sound" id="soundBtn" type="button" aria-pressed="false"><span class="sound__icon" aria-hidden="true"></span><span data-i18n="product.soundOn">Įjungti garsą</span></button>
+          <video id="adVideo" src="/media/bullbucha-ad.mp4" poster="/media/bullbucha-ad-poster.jpg" muted autoplay loop playsinline disablepictureinpicture disableremoteplayback preload="metadata" width="720" height="720" aria-label="Bullbūcha reklama"></video>
         </div>
         <div class="product__text">
           <p class="kicker" data-i18n="product.kicker">Mūsų kombucha</p>
@@ -113,7 +123,6 @@
     <!-- ───────── how to enjoy ───────── -->
     <section class="section" id="vartojimas">
       <div class="frame">
-        <img class="frame__roses" src="/img/divider.webp" alt="" width="832" height="83">
         <h2 data-i18n="care.title">Kaip mėgautis</h2>
         <div class="care">
           <div class="care__item"><img src="/img/icon-bottle.webp" alt="" width="136" height="146" loading="lazy"><h3 data-i18n="care.c1">Nesuplakti ir atidaryti atsargiai</h3></div>
@@ -131,6 +140,7 @@
           <p class="kicker" data-i18n="contact.kicker">Užsakymai ir klausimai</p>
           <h2 class="gold-text strong" data-i18n="contact.title">UŽSISAKYK ŽINUTE</h2>
           <p data-i18n="contact.lead">Parašyk, kiek butelių nori, ir susisieksime dėl užsakymo. Turi klausimą? Rašyk taip pat.</p>
+          <a class="insta" href="https://www.instagram.com/bullbucha/" target="_blank" rel="noopener"><span class="insta__label" data-i18n="contact.insta">Sek mus Instagram</span> <b>@bullbucha</b></a>
           <img class="contact__bull" src="/img/bull-320.webp" alt="" width="320" height="284" loading="lazy">
         </div>
         <form class="form" id="contactForm" novalidate>
@@ -143,11 +153,7 @@
             <label class="field"><span data-i18n="form.phone">Telefonas (nebūtina)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
           </div>
           <label class="field"><span data-i18n="form.email">El. paštas</span><input name="email" type="email" autocomplete="email" inputmode="email" maxlength="160" required></label>
-          <label class="field field--qty" id="qtyField"><span data-i18n="form.qty">Butelių kiekis</span>
-            <span class="qty"><button type="button" data-step="-1" aria-label="−">−</button><input name="bottles" type="number" min="1" max="200" value="2" inputmode="numeric"><button type="button" data-step="1" aria-label="+">+</button></span>
-            <span class="qty__total" id="qtyTotal"></span>
-          </label>
-          <label class="field"><span data-i18n="form.message">Žinutė</span><textarea name="message" rows="4" maxlength="3000" data-i18n-placeholder="form.placeholder" placeholder="Pvz. kada ir kur norėtum atsiimti"></textarea></label>
+          <label class="field"><span data-i18n="form.message">Žinutė</span><textarea name="message" rows="5" maxlength="3000" required data-i18n-placeholder="form.placeholder" placeholder="Parašyk, ką norėtum užsisakyti, kada ir kur norėtum atsiimti"></textarea></label>
           <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
           <p class="form__privacy" data-i18n="form.privacy">Tavo duomenis naudosime tik atsakyti į šią žinutę.</p>
           <button class="btn btn--block" type="submit" data-i18n="form.send">Siųsti žinutę</button>
@@ -158,10 +164,9 @@
   </main>
 
   <footer class="foot">
-    <img src="/img/border-top.webp" alt="" class="foot__roses" width="1044" height="104" loading="lazy">
     <span class="gold-text strong foot__word">BULLBŬCHA</span>
     <p data-i18n="foot.tag">Rokenrolas burnoj</p>
-    <p class="foot__small"><a href="https://www.bullbucha.com">www.bullbucha.com</a> · © <span id="year">2026</span> Bullbūcha</p>
+    <p class="foot__small"><a href="https://www.bullbucha.com">www.bullbucha.com</a> · <a href="https://www.instagram.com/bullbucha/" target="_blank" rel="noopener">Instagram @bullbucha</a> · © <span id="year">2026</span> Bullbūcha</p>
   </footer>
 </body>
 </html>
