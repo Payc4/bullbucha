@@ -150,6 +150,13 @@ try {
   assert.equal((await fetch(BASE + '/../server.js')).status !== 200 || !(await (await fetch(BASE + '/%2e%2e/server.js')).text()).includes('nodemailer'), true)
   step('no access to files outside public/')
 
+  const home = await (await fetch(BASE + '/')).text()
+  const js = /src="(\/js\/site\.js\?v=[a-f0-9]{10})"/.exec(home)?.[1]
+  assert.ok(js && /href="\/css\/site\.css\?v=[a-f0-9]{10}"/.test(home), 'page links carry content fingerprints')
+  assert.match((await fetch(BASE + js)).headers.get('cache-control'), /immutable/)
+  assert.match(home, /href="\/fonts\/montserrat-latin-900-normal\.woff2"/, 'font preload matches the stylesheet')
+  step('after a redeploy browsers load the new CSS/JS (fingerprinted links)')
+
   assert.deepEqual(errors, [])
   step('no JavaScript errors')
   console.log('\nALL PASSED')

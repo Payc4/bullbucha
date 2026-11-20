@@ -3,7 +3,7 @@
 import { createServer } from 'node:http'
 import { readFile, appendFile, mkdir, stat } from 'node:fs/promises'
 import { join, extname, normalize } from 'node:path'
-import { timingSafeEqual } from 'node:crypto'
+import { timingSafeEqual, createHash } from 'node:crypto'
 import nodemailer from 'nodemailer'
 
 const ROOT = new URL('.', import.meta.url).pathname
@@ -72,14 +72,31 @@ function limited(ip) {
   return list.length > 5
 }
 
-async function sendStatic(req, res, path) {
+// Cache busting: the page's links to its own files get ?v=<content fingerprint>, so after a redeploy browsers
+// fetch the new CSS/JS/images instead of mixing a fresh page with week-old cached files.
+const fingerprint = async rel => createHash('sha1').update(await readFile(join(PUBLIC, rel))).digest('hex').slice(0, 10)
+let indexHtml = null
+async function buildIndex() {
+  const html = await readFile(join(PUBLIC, 'index.html'), 'utf8')
+  const refs = [...new Set([...html.matchAll(/(?:src|href|poster)="(\/(?:css|js|img|media)\/[^"?#]+)"/g)].map(m => m[1]))]
+  const v = Object.fromEntries(await Promise.all(refs.map(async r => [r, await fingerprint(r).catch(() => null)])))
+  return html.replace(/((?:src|href|poster)=")(\/(?:css|js|img|media)\/[^"?#]+)"/g, (m, a, r) => v[r] ? `${a}${r}?v=${v[r]}"` : m)
+}
+
+async function sendStatic(req, res, path, versioned) {
+  if (path === '/' || path === '/index.html') {
+    indexHtml ??= await buildIndex()
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache', ...SECURITY })
+    return res.end(req.method === 'HEAD' ? undefined : indexHtml)
+  }
   const file = normalize(join(PUBLIC, path === '/' ? 'index.html' : decodeURIComponent(path)))
   if (!file.startsWith(PUBLIC)) { res.writeHead(403); return res.end() }
   let info
   try { info = await stat(file) } catch { res.writeHead(404, { 'content-type': 'text/plain' }); return res.end('Not found') }
   if (!info.isFile()) { res.writeHead(404); return res.end() }
   const type = TYPES[extname(file)] || 'application/octet-stream'
-  const cache = extname(file) === '.html' ? 'no-cache' : 'public, max-age=604800'
+  // fingerprinted links never change, so they can be cached for a year; anything else is re-checked
+  const cache = versioned ? 'public, max-age=31536000, immutable' : extname(file) === '.html' ? 'no-cache' : 'public, max-age=3600'
   // byte ranges, so the video can seek and play on iPhones
   const range = req.headers.range && /bytes=(\d*)-(\d*)/.exec(req.headers.range)
   if (range && extname(file) === '.mp4') {
@@ -151,7 +168,7 @@ const server = createServer(async (req, res) => {
       return adminPage(res)
     }
 
-    if (req.method === 'GET' || req.method === 'HEAD') return sendStatic(req, res, url.pathname)
+    if (req.method === 'GET' || req.method === 'HEAD') return sendStatic(req, res, url.pathname, url.searchParams.has('v'))
     res.writeHead(405); res.end()
   } catch (e) {
     console.error(e)
