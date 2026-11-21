@@ -131,9 +131,9 @@
       const s = (now - t0) / 1000
       const gx = pointer ? tx : Math.sin(s * .55) * .45, gy = pointer ? ty : Math.sin(s * .8 + 1) * .25
       x += (gx - x) * .07; y += (gy - y) * .07
-      tilt.style.setProperty('--rx', (-y * 12).toFixed(2) + 'deg')
-      tilt.style.setProperty('--ry', (x * 18).toFixed(2) + 'deg')
-      tilt.style.setProperty('--shine', (50 - x * 60).toFixed(1) + '%')
+      tilt.style.setProperty('--rx', (-y * 6).toFixed(2) + 'deg')
+      tilt.style.setProperty('--ry', (x * 9).toFixed(2) + 'deg')
+      tilt.style.setProperty('--shine', (50 - x * 30).toFixed(1) + '%')
       raf = requestAnimationFrame(frame)
     }
     setTimeout(() => { raf ||= requestAnimationFrame(frame) }, 1300) // after the swing-in

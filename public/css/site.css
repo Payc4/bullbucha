@@ -92,13 +92,14 @@ h2 { font-size: clamp(28px, 4.4vw, 46px); font-weight: 600; letter-spacing: .01e
 .hero__tag { margin: 0 0 30px; color: var(--ink-2); font-size: clamp(16px, 2vw, 19px); }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .hero__scroll { width: fit-content; margin: 20px auto 0; display: flex; flex-direction: column; align-items: center; padding: 6px 16px 10px; transition: opacity .4s ease; }
-.hero__scroll:hover .hero__scroll-arrow { border-color: var(--gold-1); }
+.hero__scroll:hover .hero__scroll-arrow { color: var(--gold-1); }
 .hero__scroll.gone { opacity: 0; pointer-events: none; }
-.hero__scroll-line { position: relative; width: 1.5px; height: 40px; overflow: hidden; border-radius: 1px; background: linear-gradient(rgba(226, 182, 99, 0), rgba(226, 182, 99, .45)); }
+.hero__scroll-line { position: relative; width: 2px; height: 40px; overflow: hidden; border-radius: 1px; background: linear-gradient(rgba(226, 182, 99, 0), rgba(226, 182, 99, .45)); }
 .hero__scroll-line::after { content: ''; position: absolute; left: 0; top: -45%; width: 100%; height: 45%; background: linear-gradient(rgba(247, 220, 149, 0), #f7dc95); animation: scrollRun 2s cubic-bezier(.6, 0, .3, 1) infinite; }
-.hero__scroll-arrow { width: 11px; height: 11px; margin-top: -7px; border-right: 1.5px solid var(--gold-2); border-bottom: 1.5px solid var(--gold-2); rotate: 45deg; animation: arrowBob 2s ease-in-out infinite; }
+/* line (2px) and arrow (14px) share one centre line, so the tip sits exactly under the line */
+.hero__scroll-arrow { display: block; width: 14px; height: 8px; margin-top: -1px; color: var(--gold-2); overflow: visible; animation: arrowBob 2s ease-in-out infinite; }
 @keyframes scrollRun { to { top: 100%; } }
-@keyframes arrowBob { 0%, 100% { translate: 0 0; opacity: .55; } 55% { translate: 3px 3px; opacity: 1; } }
+@keyframes arrowBob { 0%, 100% { translate: 0 0; opacity: .55; } 55% { translate: 0 4px; opacity: 1; } }
 
 /* ───────── sections ───────── */
 .section { position: relative; padding: clamp(72px, 10vw, 120px) 20px; }
