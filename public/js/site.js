@@ -31,7 +31,7 @@
     'contact.kicker': 'Orders and questions', 'contact.title': 'ORDER BY MESSAGE',
     'contact.lead': "Tell us how many bottles you'd like and we'll get back to you to arrange your order. Got a question? Write to us too.",
     'form.order': 'Order', 'form.question': 'Question', 'form.name': 'Name', 'form.phone': 'Phone (optional)', 'form.email': 'Email',
-    'form.message': 'Message', 'form.placeholder': 'Tell us what you would like to order, and when and where you would like to collect it',
+    'form.message': 'Message', 'form.placeholder': 'Tell us what you would like to order',
     'form.placeholderQ': 'Your question',
     'form.privacy': 'We only use your details to reply to this message.', 'form.send': 'Send message',
     'form.sending': 'Sending…', 'form.thanks': "Thanks! We got your message and we'll be in touch soon.",

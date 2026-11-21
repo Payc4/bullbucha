@@ -52,17 +52,21 @@ h2 { font-size: clamp(28px, 4.4vw, 46px); font-weight: 600; letter-spacing: .01e
 
 /* ───────── header ───────── */
 .top { position: fixed; inset: 0 0 auto 0; z-index: 50; display: flex; align-items: center; gap: 18px; height: 68px; padding: 0 max(16px, env(safe-area-inset-left)); background: rgba(16, 16, 27, .82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 182, 99, .14); }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
-.brand__bull { width: 46px; height: auto; }
-.brand__word { font-weight: 900; font-size: 19px; letter-spacing: .04em; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; text-decoration: none; margin-right: auto; }
+.brand__bull { flex: none; width: 46px; height: auto; }
+/* scales with the screen so the name, language switch and button never run into each other */
+.brand__word { font-weight: 900; font-size: clamp(14px, 4.1vw, 19px); letter-spacing: .04em; white-space: nowrap; }
 .nav { display: flex; gap: 26px; }
 .nav a { color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
 .nav a:hover { color: var(--gold-1); }
+.lang, .top__cta { flex: none; }
 .lang { display: flex; padding: 3px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
 .lang button { min-width: 38px; height: 30px; border: 0; border-radius: 999px; background: none; color: var(--ink-2); font: 700 12px Montserrat, sans-serif; letter-spacing: .08em; cursor: pointer; }
 .lang button[aria-pressed=true] { background: var(--gold); color: #1b130a; }
 @media (max-width: 900px) { .nav { display: none; } }
-@media (max-width: 420px) { .top__cta { display: none; } .brand__word { font-size: 17px; } }
+/* phones: the hero's own contact button is right there, so the top bar keeps just logo, name and language */
+@media (max-width: 599px) { .top__cta { display: none; } .top { gap: 12px; } }
+@media (max-width: 359px) { .brand__bull { width: 38px; } .brand { gap: 8px; } }
 
 /* ───────── hero ───────── */
 .hero { position: relative; min-height: 100svh; display: grid; place-items: center; padding: 92px 20px 36px; overflow: hidden;
